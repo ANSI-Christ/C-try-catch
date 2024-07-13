@@ -1,6 +1,6 @@
 # C-try-catch
-try / catch implementation in C.
-
+C try / catch implementation.
+ - single-header (def before include TRY_CATCH_IMPL)
  - thread safety
  - nested calls
  - finally is optional
