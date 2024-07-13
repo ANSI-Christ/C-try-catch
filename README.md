@@ -1,6 +1,7 @@
 # C-try-catch
 C try / catch implementation.
- - single-header (def before include TRY_CATCH_IMPL)
+
+ - almost single-header (need macro.h and define TRY_CATCH_IMPL before include trycatch.h)
  - thread safety
  - nested calls
  - finally is optional
