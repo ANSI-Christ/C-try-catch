@@ -46,6 +46,20 @@ void test_4(){
         printf("finally\n");
     )
 }
+
+struct t_ExceptionUser{
+    int a;
+    float b;
+};
+
+void test_5(){
+    TRY(
+        THROW(struct t_ExceptionUser,{3,1.1});
+        printf("cant get here\n");
+    )CATCH(struct t_ExceptionUser,u)(
+        printf("catch user %d / %f\n",u.a,u.b);
+    )
+}
   
 int main()
 {
@@ -54,5 +68,6 @@ int main()
     test_2();
     test_3();
     test_4();
+    test_5();
     TryCatchClose();
 }

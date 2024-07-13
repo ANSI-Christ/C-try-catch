@@ -18,7 +18,8 @@
 #define EXCEPTION    ((const struct _EXCEPTION*)(_TryCatch()->e))
 #define DEBUG(...)   TRY(__VA_ARGS__)CATCH()(printf("\nDEBUG[%s:%d] %s at %s\n",M_FILE(),M_LINE(),EXCEPTION->type,EXCEPTION->where); getchar();)
 
-void TryCatchInit();
+unsigned char TryCatchInit();
+
 void TryCatchClose();
 void TryCatchSetSignalInitializer(void(*f)(void *arg),void *arg);
 
@@ -67,9 +68,8 @@ static struct{
     void(*f)(void *arg);
     void *arg;
     pthread_key_t key;
-    char init;
-}_tcInit={};
-
+    unsigned char init;
+}_tcInit;
 
 void TryCatchSetSignalInitializer(void(*f)(void *arg),void *arg){
     _tcInit.f=f; _tcInit.arg=arg;
@@ -83,9 +83,9 @@ void _TryCatchDeleter(struct _TRYCATCH *s){
     }
 }
 
-void TryCatchInit(){
-    if(_tcInit.init) return;
-    _tcInit.init=!pthread_key_create(&_tcInit.key,(void*)_TryCatchDeleter);
+unsigned char TryCatchInit(){
+    if(!_tcInit.init) _tcInit.init=!pthread_key_create(&_tcInit.key,(void*)_TryCatchDeleter);
+    return _tcInit.init;
 }
 
 void TryCatchClose(){
