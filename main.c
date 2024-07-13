@@ -60,14 +60,32 @@ void test_5(){
         printf("catch user %d / %f\n",u.a,u.b);
     )
 }
+
+void _test_6(){
+    TRY(
+        THROW(int,999);
+        printf("cant get here\n");
+    )CATCH(struct t_ExceptionUser,u)(
+        printf("catch user %d / %f\n",u.a,u.b);
+    )
+}
+
+void test_6(){
+    TRY(
+        _test_6();
+        printf("cant get here\n");
+    )CATCH(int,x)(
+        printf("catch int %d\n",x);
+    )
+}
   
 int main()
 {
-    TryCatchInit();
+    if(TryCatchInit()) atexit(TryCatchClose);
     test_1();
     test_2();
     test_3();
     test_4();
     test_5();
-    TryCatchClose();
+    test_6();
 }
