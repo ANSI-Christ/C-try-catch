@@ -14,7 +14,7 @@ OBJECTS_ADD =
 
 ############################ FOLDERS #############################
 
-#FLD_SRC  = ./SRC
+
 
 ##################################################################
 
@@ -32,16 +32,14 @@ SOURCES += main.c
 
 OBJECTS += $(SOURCES:.c=.o)
 
-OBJECTS_ADD +=
-
 ##################################################################
 
-all: $(SOURCES) $(TARGET) 
+all: $(SOURCES) $(TARGET)
 
 ##################################################################
 
 $(TARGET): $(OBJECTS) $(OBJECTS_ADD)
-	$(COMPILER) $(LD_FLAGS) $(OBJECTS) $(OBJECTS_ADD) -o $(TARGET)
+	$(COMPILER) $(OBJECTS) $(OBJECTS_ADD) -o $(TARGET) $(LD_FLAGS)
 
 .c.o:
 	$(COMPILER) $(C_FLAGS) $< -o $@
