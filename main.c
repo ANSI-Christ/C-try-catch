@@ -146,7 +146,7 @@ void sigInitializer(void *arg){
 int main(int argc,char **argv)
 {
     execName=argv[0];
-    if(TryCatchInit()) atexit(TryCatchClose);
+    if(TryCatchInit()==1) atexit(TryCatchClose);
     TryCatchSetSignalInitializer(sigInitializer,NULL);
     
     test_1();
