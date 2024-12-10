@@ -138,7 +138,7 @@ void sigHandler(int sig){
     }
 }
 
-void sigInitializer(void *arg){
+void sigInitializer(void){
     signal(SIGFPE,sigHandler);
     signal(SIGSEGV,sigHandler);
 }
@@ -146,8 +146,7 @@ void sigInitializer(void *arg){
 int main(int argc,char **argv)
 {
     execName=argv[0];
-    if(TryCatchInit()==1) atexit(TryCatchClose);
-    TryCatchSetSignalInitializer(sigInitializer,NULL);
+    TryCatchSignal=sigInitializer;
     
     test_1();
     test_2();
