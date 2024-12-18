@@ -7,5 +7,3 @@ echo ' '
 
 make -f ./makefile
 make -f ./makefile rmo > /dev/null
-
-
