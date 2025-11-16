@@ -150,7 +150,26 @@ void sigInitializer(void){
     signal(SIGFPE,sigHandler);
     signal(SIGSEGV,sigHandler);
 }
-  
+
+void test_8(void){
+    TRY(
+        TRY(
+            THROW(int,1);
+        )CATCH()(
+            TRY(
+                THROW(float,2.3);
+            )CATCH()(
+
+            )
+            THROW();
+        )
+    )CATCH(int,x)(
+        printf("got correct level %d\n",x);
+    )CATCH(float,x)(
+        printf("got wrong level %f\n",x);
+    )
+}
+
 int main(int argc,char **argv)
 {
     execName=argv[0];
@@ -163,6 +182,7 @@ int main(int argc,char **argv)
     test_5();
     test_6();
     test_7();
+    test_8();
     
     return 0;
 }
