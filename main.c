@@ -37,17 +37,22 @@ void test_4(){
             printf("cant get here\n");
         )CATCH(int)(
             printf("cant get here\n");
-        )
-        FINALLY(
-            printf("finally 1\n");
+            goto _finally_1;
         )
         printf("cant get here\n");
+        if(0){
+            _finally_1:
+            printf("finally 1\n");
+        }
     )CATCH(const char *,s)(
         printf("catch string %s\n",s);
+        goto _finally_2;
     )
-    FINALLY(
+
+    if(0){
+        _finally_2:
         printf("finally 2\n");
-    )
+    }
 }
 
 struct t_ExceptionUser{
