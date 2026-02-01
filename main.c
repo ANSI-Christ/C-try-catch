@@ -125,30 +125,21 @@ typedef struct{
 }t_exceptionSignal;
 
 void test_7(){
-    TRY(
-        void **a=(void*)123;
-        printf("SIGSEGV %p\n",*a);
-    )CATCH(t_exceptionSignal,sig)(
-        printf("catch sig %d\n",sig.sig);
-        addr2line(sig.trace,sig.count);
-    )
-}
-
-#include <signal.h>
-#include <execinfo.h>
-
-void sigHandler(int sig){
-    signal(sig,sigHandler);
-    {
-        t_exceptionSignal e={sig};
-        e.count=backtrace(e.trace,sizeof(e.trace)/sizeof(*e.trace));
-        THROW(t_exceptionSignal,e);
+    int i=15;
+    while(i--){
+        TRY(
+            if(i%2){
+                void **a=(void*)123;
+                printf("SIGSEGV %p\n",*a);
+            }else{
+                int x=(i%2)>>30;
+                printf("SIGFPE %d\n",10/x);
+            }
+        )CATCH(t_exceptionSignal,sig)(
+            printf("catch sig %d\n",sig.sig);
+            addr2line(sig.trace,sig.count);
+        )
     }
-}
-
-void sigInitializer(void){
-    signal(SIGFPE,sigHandler);
-    signal(SIGSEGV,sigHandler);
 }
 
 void test_8(void){
@@ -170,6 +161,44 @@ void test_8(void){
     )
 }
 
+
+
+
+
+#include <signal.h>
+
+#ifdef _WIN32
+
+#include <windows.h>
+static void sigHandler(int sig){
+    signal(sig,sigHandler);
+    {t_exceptionSignal e={sig};
+    e.count=CaptureStackBackTrace(0,sizeof(e.trace)/sizeof(*e.trace),e.trace,NULL);
+    THROW(t_exceptionSignal,e);}
+}
+
+static void sigInitializer(void){
+    signal(SIGFPE,sigHandler);
+    signal(SIGSEGV,sigHandler);
+}
+
+#else
+
+extern int backtrace(void**,int);
+
+static void sigHandler(int sig){
+    t_exceptionSignal e={sig};
+    e.count=backtrace(e.trace,sizeof(e.trace)/sizeof(*e.trace));
+    THROW(t_exceptionSignal,e);
+}
+
+static void sigInitializer(void){
+    signal(SIGFPE,sigHandler);
+    signal(SIGSEGV,sigHandler);
+}
+
+#endif
+
 int main(int argc,char **argv)
 {
     execName=argv[0];
@@ -183,6 +212,6 @@ int main(int argc,char **argv)
     test_6();
     test_7();
     test_8();
-    
+    getchar();
     return 0;
 }
