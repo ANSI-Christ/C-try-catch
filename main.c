@@ -170,40 +170,42 @@ void test_8(void){
 #ifdef _WIN32
 
 #include <windows.h>
-static void sigHandler(int sig){
-    signal(sig,sigHandler);
-    {t_exceptionSignal e={sig};
-    e.count=CaptureStackBackTrace(0,sizeof(e.trace)/sizeof(*e.trace),e.trace,NULL);
-    THROW(t_exceptionSignal,e);}
+
+static void set_sighandler(const int s,void (* const f)(int)){
+    signal(s,f);
 }
 
-static void sigInitializer(void){
-    signal(SIGFPE,sigHandler);
-    signal(SIGSEGV,sigHandler);
-}
+#define backtrace(_arr_,_cnt_) CaptureStackBackTrace(0,(_cnt_),(_arr_),NULL);
 
 #else
 
 extern int backtrace(void**,int);
 
-static void sigHandler(int sig){
-    t_exceptionSignal e={sig};
-    e.count=backtrace(e.trace,sizeof(e.trace)/sizeof(*e.trace));
-    THROW(t_exceptionSignal,e);
-}
-
-static void sigInitializer(void){
-    signal(SIGFPE,sigHandler);
-    signal(SIGSEGV,sigHandler);
+static void set_sighandler(const int s,void (* const f)(int)){
+    signal(s,f);
+    {sigset_t set[1];
+    sigemptyset(set); sigaddset(set,s);
+    pthread_sigmask(SIG_UNBLOCK,set,NULL);}
 }
 
 #endif
+
+static void sigHandler(int sig){
+    set_sighandler(sig,sigHandler);
+    {t_exceptionSignal e={sig};
+    e.count=backtrace(e.trace,sizeof(e.trace)/sizeof(*e.trace));
+    THROW(t_exceptionSignal,e);}
+}
+static void sigInitializer(void){
+    set_sighandler(SIGFPE,sigHandler);
+    set_sighandler(SIGSEGV,sigHandler);
+}
 
 int main(int argc,char **argv)
 {
     execName=argv[0];
     TryCatchSignal=sigInitializer;
-    
+
     test_1();
     test_2();
     test_3();
@@ -212,6 +214,8 @@ int main(int argc,char **argv)
     test_6();
     test_7();
     test_8();
+
     getchar();
+
     return 0;
 }
